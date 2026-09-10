@@ -1,12 +1,20 @@
+import Link from "next/link";
 import { TIME_SLOTS } from "@/lib/constants";
+import { parseISODate } from "@/lib/dates";
 import type { Booking, Room } from "@/lib/types";
 
 export function AvailabilityGrid({
   rooms,
   bookings,
+  selectedDate,
+  selectedRoomId,
+  selectedSlot,
 }: {
   rooms: Room[];
   bookings: Booking[];
+  selectedDate: string;
+  selectedRoomId?: string;
+  selectedSlot?: string;
 }) {
   if (rooms.length === 0) {
     return (
@@ -42,17 +50,34 @@ export function AvailabilityGrid({
               </th>
               {TIME_SLOTS.map((slot) => {
                 const busy = taken.has(`${room.id}|${slot}`);
+                const selected = selectedRoomId === room.id && selectedSlot === slot;
+                const query = new URLSearchParams({
+                  date: parseISODate(selectedDate),
+                  room: room.id,
+                  slot,
+                });
+
                 return (
-                  <td key={slot} className="px-2 py-2">
-                    <span
-                      className={
-                        busy
-                          ? "inline-flex rounded-full bg-danger-soft px-2 py-1 text-xs font-medium text-danger"
-                          : "inline-flex rounded-full bg-ok-soft px-2 py-1 text-xs font-medium text-ok"
-                      }
-                    >
-                      {busy ? "ไม่ว่าง" : "ว่าง"}
-                    </span>
+                  <td key={slot} className="px-1 py-1">
+                    {busy ? (
+                      <span className="inline-flex w-full justify-center rounded-full bg-danger-soft px-2 py-2 text-xs font-medium text-danger">
+                        ไม่ว่าง
+                      </span>
+                    ) : (
+                      <Link
+                        href={`/?${query.toString()}#booking-form`}
+                        replace
+                        aria-label={`เลือก ${room.name} รอบ ${slot}`}
+                        aria-current={selected ? "true" : undefined}
+                        className={
+                          selected
+                            ? "inline-flex w-full justify-center rounded-full bg-accent px-2 py-2 text-xs font-medium text-white ring-2 ring-accent ring-offset-2"
+                            : "inline-flex w-full justify-center rounded-full bg-ok-soft px-2 py-2 text-xs font-medium text-ok hover:bg-accent-soft hover:text-accent"
+                        }
+                      >
+                        {selected ? "เลือกแล้ว" : "ว่าง"}
+                      </Link>
+                    )}
                   </td>
                 );
               })}

@@ -1,23 +1,55 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createBooking } from "@/lib/actions/bookings";
 import { TIME_SLOTS } from "@/lib/constants";
-import { todayISO } from "@/lib/dates";
+import { parseISODate, todayISO } from "@/lib/dates";
 import { FormAlert } from "@/components/form-alert";
 import type { ActionState, Room } from "@/lib/types";
 
 export function BookingForm({
   rooms,
   defaultDate,
+  defaultRoomId = "",
+  defaultTimeSlot = "",
 }: {
   rooms: Room[];
   defaultDate: string;
+  defaultRoomId?: string;
+  defaultTimeSlot?: string;
 }) {
+  const router = useRouter();
+  const purposeRef = useRef<HTMLTextAreaElement>(null);
+  const [roomId, setRoomId] = useState(defaultRoomId);
+  const [bookingDate, setBookingDate] = useState(() => parseISODate(defaultDate));
+  const [timeSlot, setTimeSlot] = useState(defaultTimeSlot);
+  const [purpose, setPurpose] = useState("");
   const [state, formAction, pending] = useActionState<ActionState | undefined, FormData>(
     createBooking,
     undefined,
   );
+
+  useEffect(() => {
+    setRoomId(defaultRoomId);
+    setBookingDate(parseISODate(defaultDate));
+    setTimeSlot(defaultTimeSlot);
+  }, [defaultRoomId, defaultDate, defaultTimeSlot]);
+
+  useEffect(() => {
+    if (defaultRoomId && defaultTimeSlot) {
+      purposeRef.current?.focus();
+    }
+  }, [defaultRoomId, defaultDate, defaultTimeSlot]);
+
+  useEffect(() => {
+    if (!state?.success) return;
+    setPurpose("");
+    setRoomId("");
+    setTimeSlot("");
+    const params = new URLSearchParams({ date: parseISODate(bookingDate) });
+    router.replace(`/?${params.toString()}`);
+  }, [bookingDate, router, state?.success]);
 
   if (rooms.length === 0) {
     return (
@@ -32,8 +64,14 @@ export function BookingForm({
       <FormAlert state={state} />
       <div className="field">
         <label htmlFor="room_id">ห้อง</label>
-        <select id="room_id" name="room_id" required defaultValue="">
-          <option value="" disabled>
+        <select
+          id="room_id"
+          name="room_id"
+          required
+          value={roomId}
+          onChange={(event) => setRoomId(event.target.value)}
+        >
+          <option value="">
             เลือกห้อง
           </option>
           {rooms.map((room) => (
@@ -52,13 +90,20 @@ export function BookingForm({
             type="date"
             required
             min={todayISO()}
-            defaultValue={defaultDate}
+            value={bookingDate}
+            onChange={(event) => setBookingDate(event.target.value)}
           />
         </div>
         <div className="field">
           <label htmlFor="time_slot">รอบเวลา</label>
-          <select id="time_slot" name="time_slot" required defaultValue="">
-            <option value="" disabled>
+          <select
+            id="time_slot"
+            name="time_slot"
+            required
+            value={timeSlot}
+            onChange={(event) => setTimeSlot(event.target.value)}
+          >
+            <option value="">
               เลือกช่วงเวลา
             </option>
             {TIME_SLOTS.map((slot) => (
@@ -74,9 +119,12 @@ export function BookingForm({
         <textarea
           id="purpose"
           name="purpose"
+          ref={purposeRef}
           required
           minLength={3}
           rows={3}
+          value={purpose}
+          onChange={(event) => setPurpose(event.target.value)}
           placeholder="เช่น อ่านหนังสือสอบ, ติวกลุ่ม, ทำงานวิจัย"
         />
       </div>

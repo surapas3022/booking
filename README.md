@@ -63,7 +63,7 @@ SQL พร้อมรันอยู่ที่ `supabase/schema.sql` แล�
 
 ```powershell
 copy .env.example .env.local
-# ใส่ NEXT_PUBLIC_SUPABASE_URL และ NEXT_PUBLIC_SUPABASE_ANON_KEY
+# ใส่ NEXT_PUBLIC_SUPABASE_URL และ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 docker compose up
 ```
 
@@ -83,7 +83,7 @@ docker compose run --rm web npx tsc --noEmit
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
 ไฟล์ `.env.local` ถูก ignore จาก git แล้ว

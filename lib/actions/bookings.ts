@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { TIME_SLOTS } from "@/lib/constants";
-import { isPastDate } from "@/lib/dates";
+import { isPastDate, parseISODate } from "@/lib/dates";
 import { mapDbError } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types";
@@ -15,6 +15,9 @@ function readBookingFields(formData: FormData) {
 
   if (!roomId || !bookingDate || !timeSlot || !purpose) {
     return { error: "กรุณากรอกข้อมูลให้ครบทุกช่อง" };
+  }
+  if (parseISODate(bookingDate, "") !== bookingDate) {
+    return { error: "วันที่ไม่ถูกต้อง" };
   }
   if (isPastDate(bookingDate)) {
     return { error: "ไม่สามารถจองวันที่ผ่านมาแล้วได้" };
