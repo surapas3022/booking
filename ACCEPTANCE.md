@@ -14,7 +14,7 @@
 | 08 | Form Validation | ผ่าน (โค้ด) | required / วันที่อดีต / รอบเวลา / ความยาววัตถุประสงค์ ทั้งฝั่งฟอร์มและ Server Action |
 | 09 | Error Handling | ผ่าน (โค้ด) | `lib/errors.ts` แปลง Auth/DB error เป็นภาษาไทยบน UI |
 | 10 | Security Check | ผ่าน | git ไม่ stage `.env.local`; ไม่มี `service_role` ในซอร์สของโปรเจกต์ มีแค่คำเตือนใน README |
-| 11 | Production Availability | ยังไม่ผ่าน | ยังไม่ได้ deploy Vercel เพราะยังไม่มี env และยังไม่มี GitHub remote |
+| 11 | Production Availability | ยังไม่ผ่าน | local commit พร้อมแล้ว แต่ `git push` ไม่สำเร็จเพราะยังไม่มี repo `surapas3022/booking` |
 | 12 | Env Vars & Auth Callback | ยังไม่ผ่าน | ต้องใส่ env บน Vercel และ Redirect URL ใน Supabase หลังมี Production URL |
 
 ## การตรวจในเครื่องนี้

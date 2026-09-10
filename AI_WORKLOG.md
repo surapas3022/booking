@@ -29,8 +29,10 @@
 - `npm install` บน Docker volume ของ Windows ช้ามากระหว่าง scaffold รอนานกว่า 10 นาที
 - `tsc` ฟ้องว่า Supabase infer `rooms` จาก join เป็น array — ปรับ mapper ให้เหลือ object เดียว
 - Next.js 16 เปลี่ยนชื่อ convention เป็น `proxy.ts` แต่โจทย์บังคับใช้ `middleware.ts` จึงคงไฟล์นี้ไว้
-- เครื่องไม่มี `gh` — ใช้ git remote / ติดตั้ง GitHub CLI ตอน deploy
+- เครื่องไม่มี `gh` และ Git 2.28 ไม่รองรับ `git commit --trailer` จึง commit ผ่าน `alpine/git` ใน Docker
+- `git push` ไป `https://github.com/surapas3022/booking.git` ล้มเหลวเพราะ repo ยังไม่มีบน GitHub
 - ยังไม่มี Supabase project จากผู้ใช้ตอนเริ่มงาน จึงใส่หน้า Missing Config และขั้นตอนใน README แทนการฝัง secret
+- พอร์ต 3000 ถูก `omniai-gateway-dev` ใช้แล้ว จึง map Docker เป็น `3001:3000`
 
 ## Final Review
 
