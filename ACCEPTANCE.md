@@ -2,23 +2,26 @@
 
 ทดสอบตามรายการตรวจรับงาน 12 ข้อ ระบุผลตามที่ทำได้จริงตอนส่งโค้ด
 
+ทดสอบบน production วันที่ 11 ก.ย. 2026 ที่ https://booking-nine-iota.vercel.app — ผ่านทั้ง 12 ข้อ
+
 | ID | รายการ | ผล | วิธีทดสอบ / หมายเหตุ |
 |---|---|---|---|
-| 01 | สมัครและเข้าสู่ระบบ | ยังไม่ผ่าน | หน้า `/login` และ `/signup` พร้อมแล้ว แต่ยังไม่มี Supabase project จึงทดสอบ signup/login จริงไม่ได้ |
-| 02 | ป้องกันการเข้าถึง | ผ่านบางส่วน | `middleware.ts` redirect ไป `/login` เมื่อไม่มี session; ตอนยังไม่ใส่ env หน้า protected จะแสดงหน้าตั้งค่าแทนการพัง |
-| 03 | ข้อมูลห้องมาจาก DB | ผ่าน (โค้ด) | `app/page.tsx` ดึง `from("rooms")` ไม่มีรายชื่อห้องใน frontend |
-| 04 | Data Persistence | ยังไม่ผ่าน | ยังไม่ได้สร้างการจองจริงบนฐานข้อมูล |
-| 05 | CRUD ข้อมูลตนเอง | ผ่าน (โค้ด) | `/my-bookings` มีแก้และยกเลิก; ต้องทดสอบอีกครั้งหลังใส่ env |
-| 06 | Isolation Protection | ผ่าน (โค้ด) | Action กรอง `user_id = auth.uid()` และ RLS บังคับ UPDATE/DELETE ของเจ้าของเท่านั้น |
-| 07 | Double Booking Protection | ผ่าน (โค้ด) | Unique `(room_id, booking_date, time_slot)` ใน `supabase/schema.sql` แปลง error `23505` เป็นข้อความไทย |
-| 08 | Form Validation | ผ่าน (โค้ด) | required / วันที่อดีต / รอบเวลา / ความยาววัตถุประสงค์ ทั้งฝั่งฟอร์มและ Server Action |
-| 09 | Error Handling | ผ่าน (โค้ด) | `lib/errors.ts` แปลง Auth/DB error เป็นภาษาไทยบน UI |
+| 01 | สมัครและเข้าสู่ระบบ | ผ่าน | สมัครที่ `/signup` แล้วเข้าหน้าแรกอัตโนมัติ; ออกจากระบบแล้ว login ที่ `/login` ด้วยบัญชีเดิมได้ |
+| 02 | ป้องกันการเข้าถึง | ผ่าน | ไม่มี session เปิด `/` และ `/my-bookings` ถูก redirect ไป `/login`; มี session เปิด `/login` และ `/signup` ถูก redirect ไป `/` |
+| 03 | ข้อมูลห้องมาจาก DB | ผ่าน | หน้าแรกแสดง 5 ห้องจากฐานข้อมูล (เงียบ D, ติวกลุ่ม C, วิจัย E, อ่านหนังสือ A/B) ไม่ได้ฝังรายชื่อในหน้าเว็บ |
+| 04 | Data Persistence | ผ่าน | สร้างการจองแล้วตารางเปลี่ยนเป็นไม่ว่าง; รีเฟรชและ login ใหม่แล้วยังมีรายการ; ยกเลิกแล้วช่องว่างกลับมา |
+| 05 | CRUD ข้อมูลตนเอง | ผ่าน | `/my-bookings` สร้าง แก้ (วัตถุประสงค์) และยกเลิกได้จริงบน production |
+| 06 | Isolation Protection | ผ่าน | รายการของฉันแสดงเฉพาะการจองของบัญชีที่ล็อกอิน; ช่องที่บัญชีอื่นจองแล้วเห็นเป็น «ไม่ว่าง» ไม่เห็นรายละเอียด |
+| 07 | Double Booking Protection | ผ่าน | ย้ายการจองไปช่องไม่ว่างแล้วขึ้น «ช่วงเวลานี้ถูกจองแล้ว กรุณาเลือกห้อง วัน หรือรอบเวลาอื่น» |
+| 08 | Form Validation | ผ่าน | ฟอร์มว่าง / รหัสสั้นกว่า 6 / อีเมลไม่มี `@` ถูกกันที่เบราว์เซอร์; สมัครอีเมลซ้ำขึ้นข้อความไทย |
+| 09 | Error Handling | ผ่าน | login ผิดขึ้น «อีเมลหรือรหัสผ่านไม่ถูกต้อง»; อีเมลซ้ำขึ้น «อีเมลนี้ถูกใช้สมัครแล้ว»; จองชนขึ้นข้อความไทย |
 | 10 | Security Check | ผ่าน | git ไม่ stage `.env.local`; ไม่มี `service_role` ในซอร์สของโปรเจกต์ มีแค่คำเตือนใน README |
-| 11 | Production Availability | ยังไม่ผ่าน | local commit พร้อมแล้ว แต่ `git push` ไม่สำเร็จเพราะยังไม่มี repo `surapas3022/booking` |
-| 12 | Env Vars & Auth Callback | ยังไม่ผ่าน | ต้องใส่ env บน Vercel และ Redirect URL ใน Supabase หลังมี Production URL |
+| 11 | Production Availability | ผ่าน | เปิด https://booking-nine-iota.vercel.app/login ได้ และใช้สมัคร/จองบน production ได้ |
+| 12 | Env Vars & Auth Callback | ผ่าน | signup/login บน Vercel สำเร็จ จึงใส่ env และ Redirect URL ของ Supabase ครบแล้ว |
 
 ## การตรวจในเครื่องนี้
 
 - `docker compose up` แล้วเปิดจาก container ได้ `200` ที่ `/`, `/login`, `/signup`
 - `npx tsc --noEmit` ผ่าน
 - พอร์ตโฮสต์ใช้ `3001` เพราะ `3000` ถูก container อื่นจองไว้
+- ทดสอบ end-to-end บน production 11 ก.ย. 2026 ตามรายงาน `dogfood-output/report.md`

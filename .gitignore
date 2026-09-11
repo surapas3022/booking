@@ -45,3 +45,4 @@ next-env.d.ts
 # Local browser screenshots — keep the folder, never commit images
 /screenshots/**
 !/screenshots/.gitkeep
+/dogfood-output/screenshots
